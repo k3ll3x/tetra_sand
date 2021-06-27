@@ -1,0 +1,6 @@
+set(CMAKE_CXX_STANDARD 11)
+file(GLOB_RECURSE AUDIO_SRC CONFIGURE_DEPENDS src/*.cc include/*.h)
+add_library(audio ${AUDIO_SRC})
+add_subdirectory(rtaudio)
+target_include_directories(audio PUBLIC include PRIVATE src)
+target_link_libraries(audio rtaudio)
