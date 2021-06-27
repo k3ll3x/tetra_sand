@@ -1,1 +1,0 @@
-/bin/g++-8 -fPIC -g -shared -Wl,-soname,libutil.so -o libutil.so CMakeFiles/util.dir/src/ifile.cc.o CMakeFiles/util.dir/src/image_handler.cc.o CMakeFiles/util.dir/src/ttime.cc.o 

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcgmath.a CMakeFiles/cgmath.dir/src/complex.cc.o CMakeFiles/cgmath.dir/src/mat3.cc.o CMakeFiles/cgmath.dir/src/mat4.cc.o CMakeFiles/cgmath.dir/src/utils.cc.o CMakeFiles/cgmath.dir/src/vec2.cc.o CMakeFiles/cgmath.dir/src/vec3.cc.o CMakeFiles/cgmath.dir/src/vec4.cc.o
-/usr/bin/ranlib libcgmath.a

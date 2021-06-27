@@ -1,7 +1,7 @@
-**/.vscode
-**/imgui
-**/build
-**/CMakeFiles
-**/rtaudio
+**/.vscode/
+**/imgui/
+**/build/
+**/CMakeFiles/
+**/rtaudio/
 Makefile
-*CMakeCache.txt*
+CMakeCache.txt
