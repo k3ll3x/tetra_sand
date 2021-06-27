@@ -1,10 +1,12 @@
 #include "audio.h"
 
 audio::~audio(){
+    record_thread.join();
+    save_raw_data_thread.join();
     audio::cleanup();
 }
 
-int audio::input(void* /*outputBuffer*/,
+int input(void* /*outputBuffer*/,
                 void* inputBuffer,
                 unsigned int nBufferFrames,
                 double /*streamTime*/,
@@ -28,13 +30,12 @@ int audio::input(void* /*outputBuffer*/,
     return 0;
 }
 
-void audio::record( unsigned int channels,
-                    unsigned int fs,
-                    double time,
-                    unsigned int device,
-                    unsigned int offset){
-
-    unsigned int bufferFrames = 0;
+void audio::record_hndl(unsigned int channels,
+                        unsigned int fs,
+                        double time,
+                        unsigned int device,
+                        unsigned int offset){
+                        unsigned int bufferFrames = 0;
     if ( adc.getDeviceCount() < 1 ) {
         std::cout << "\nNo audio devices found!\n";
         return;
@@ -53,14 +54,73 @@ void audio::record( unsigned int channels,
     iParams.nChannels = channels;
     iParams.firstChannel = offset;
 
+    std::lock_guard<std::mutex> data_guard(data_mutex);
     data.buffer = 0;
     try {
-        adc.openStream( NULL, &iParams, FORMAT, fs, &bufferFrames, (RtAudioCallback)&audio::input, (void*)&data );
+        adc.openStream( NULL, &iParams, FORMAT, fs, &bufferFrames, (RtAudioCallback)&input, (void*)&data );
     }
     catch ( RtAudioError& e ) {
         std::cout << '\n' << e.getMessage() << '\n' << std::endl;
         audio::cleanup();
+        return;
     }
+
+    data.bufferBytes = bufferFrames * channels * sizeof( MY_TYPE );
+    data.totalFrames = (unsigned long) (fs * time);
+    data.frameCounter = 0;
+    data.channels = channels;
+    unsigned long totalBytes;
+    totalBytes = data.totalFrames * channels * sizeof( MY_TYPE );
+
+    // Allocate the entire data buffer before starting stream.
+    data.buffer = (MY_TYPE*) malloc( totalBytes );
+    if ( data.buffer == 0 ) {
+        std::cout << "Memory allocation error ... quitting!\n";
+        audio::cleanup();
+        return;
+    }
+
+    try {
+        adc.startStream();
+    }
+    catch ( RtAudioError& e ) {
+        std::cout << '\n' << e.getMessage() << '\n' << std::endl;
+        audio::cleanup();
+        return;
+    }
+
+    std::cout << "\nRecording for " << time << " seconds ... (buffer frames = " << bufferFrames << ")." << std::endl;
+
+    while ( adc.isStreamRunning() ) {
+        SLEEP( 100 ); // wake every 100 ms to check if we're done
+    }
+
+    std::cout << "Recording finished\n";
+    if ( adc.isStreamOpen() ) adc.closeStream();
+}
+
+void audio::record( unsigned int channels,
+                    unsigned int fs,
+                    double time,
+                    unsigned int device,
+                    unsigned int offset){
+    record_thread = std::thread(&audio::record_hndl, this, channels, fs, time, device, offset);
+}
+
+void audio::save_raw_data_hndl(const char* filename, unsigned int channels){
+    if(data.buffer){
+        // Now write the entire data to the file.
+        std::cout << "Saving raw data to " << filename << '\n';
+        FILE* fd;
+        fd = fopen( filename, "wb" );
+        std::lock_guard<std::mutex> data_guard(data_mutex);
+        fwrite( data.buffer, sizeof( MY_TYPE ), data.totalFrames * channels, fd );
+        fclose( fd );
+    }
+}
+
+void audio::save_raw_data(const char* filename, unsigned int channels){
+    save_raw_data_thread = std::thread(&audio::save_raw_data_hndl, this, filename, channels);
 }
 
 void audio::cleanup(){

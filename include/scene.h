@@ -18,7 +18,10 @@
 #include "ifile.h"
 #include "ttime.h"
 
+#include "audio.h"
+
 #include <iostream>
+#include <memory>
 
 struct Shader {
 	std::string file;
@@ -27,6 +30,7 @@ struct Shader {
 
 class scene {
 public:
+	inline static auto audio_mgr = std::make_unique<audio>();
 	GLuint shader_program;
 	
 	virtual ~scene() {}

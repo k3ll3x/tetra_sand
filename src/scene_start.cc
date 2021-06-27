@@ -9,11 +9,25 @@ void scene_start::init(){
 	IM_ASSERT(ret);
 }
 
+void audio_window(){
+	ImGui::Begin("Audio Window");
+	ImGui::Text("Record Audio with default device...");
+	if(ImGui::Button("record")){
+		scene::audio_mgr->record();
+	}
+	if(ImGui::Button("save recording to file")){
+		scene::audio_mgr->save_raw_data("record.raw");
+	}
+	ImGui::End();
+}
+
 void scene_start::sceneWindowHandler(){
 	ImGui::Begin("Start Scene");
     ImGui::Text("Hello");
 	ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
 	ImGui::End();
+
+	audio_window();
 }
 
 void scene_start::mainLoop()

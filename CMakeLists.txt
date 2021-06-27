@@ -49,4 +49,8 @@ add_executable(cg_planet ${SOURCES} ${IMGUI_SRC})
 set (CMAKE_SHARED_LINKER_FLAGS "-DIMGUI_IMPL_OPENGL_LOADER_GLEW,`pkg-config --static --libs glfw3`,`pkg-config --cflags glfw3`")
 set(LIBS cgmath util GL glfw GLEW m audio)
 
-target_link_libraries(cg_planet ${LIBS})
+#threads
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+target_link_libraries(cg_planet ${LIBS} Threads::Threads)
