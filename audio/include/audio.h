@@ -31,14 +31,6 @@ class audio {
     std::thread record_thread;
     std::thread save_raw_data_thread;
 
-    // Interleaved buffers
-    // int input(  void* /*outputBuffer*/,
-    //             void* inputBuffer,
-    //             unsigned int nBufferFrames,
-    //             double /*streamTime*/,
-    //             unsigned int /*status*/,
-    //             void* data);
-
 public:
     ~audio();
     void record(unsigned int channels = 1,
@@ -47,11 +39,11 @@ public:
                 unsigned int device = 5,
                 unsigned int offset = 0);
 
-    void record_hndl(unsigned int channels,
-                unsigned int fs,
-                double time,
-                unsigned int device,
-                unsigned int offset);
+    void record_hndl(   unsigned int channels,
+                        unsigned int fs,
+                        double time,
+                        unsigned int device,
+                        unsigned int offset);
     
     void save_raw_data(const char* filename, unsigned int channels = 1);
 

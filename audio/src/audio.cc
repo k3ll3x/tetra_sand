@@ -54,7 +54,7 @@ void audio::record_hndl(unsigned int channels,
     iParams.nChannels = channels;
     iParams.firstChannel = offset;
 
-    std::lock_guard<std::mutex> data_guard(data_mutex);
+    std::lock_guard<std::mutex> data_guard(audio::data_mutex);
     data.buffer = 0;
     try {
         adc.openStream( NULL, &iParams, FORMAT, fs, &bufferFrames, (RtAudioCallback)&input, (void*)&data );
@@ -104,7 +104,10 @@ void audio::record( unsigned int channels,
                     double time,
                     unsigned int device,
                     unsigned int offset){
-    record_thread = std::thread(&audio::record_hndl, this, channels, fs, time, device, offset);
+    if(!adc.isStreamRunning())
+        if(record_thread.joinable())
+            record_thread.join();
+        record_thread = std::thread(&audio::record_hndl, this, channels, fs, time, device, offset);
 }
 
 void audio::save_raw_data_hndl(const char* filename, unsigned int channels){
@@ -120,6 +123,8 @@ void audio::save_raw_data_hndl(const char* filename, unsigned int channels){
 }
 
 void audio::save_raw_data(const char* filename, unsigned int channels){
+    if(save_raw_data_thread.joinable())
+        save_raw_data_thread.join();
     save_raw_data_thread = std::thread(&audio::save_raw_data_hndl, this, filename, channels);
 }
 
