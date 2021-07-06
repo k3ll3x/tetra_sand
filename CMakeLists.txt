@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 project(cg_planet VERSION 1.0)
 
 # C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #cgmath library
 add_subdirectory(cgmath)
@@ -27,12 +27,6 @@ set(IMGUI_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.cpp
 )
 
-set(IMGUI_H
-    ${IMGUI_H}
-    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_glfw.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.h
-)
-
 #Audio
 add_subdirectory(audio)
 
@@ -40,7 +34,6 @@ add_subdirectory(audio)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${IMGUI_H}
 )
 
 add_executable(cg_planet ${SOURCES} ${IMGUI_SRC})

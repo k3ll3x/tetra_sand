@@ -18,6 +18,9 @@ void audio_window(){
 	if(ImGui::Button("save recording to file")){
 		scene::audio_mgr->save_raw_data("record.raw");
 	}
+	if(ImGui::Button("play file")){
+		scene::audio_mgr->play("record.raw");
+	}
 	ImGui::End();
 }
 
