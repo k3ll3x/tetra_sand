@@ -32,8 +32,6 @@ void scene_manager::key_callback(GLFWwindow *window, int key, int scancode, int 
 	}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
-		//not safe, should delete objects first and threads join
-		cleanup();
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
 	if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
@@ -93,6 +91,8 @@ void scene_manager::start(const char *name, int w, int h)
 	glfwSetErrorCallback(error_callback);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetWindowSizeCallback(window, resize);
+
+	// glfwSetWindowCloseCallback(window, GL_FALSE);
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);

@@ -33,7 +33,9 @@ public:
 	inline static auto audio_mgr = std::make_unique<audio>();
 	GLuint shader_program;
 	
-	virtual ~scene() {}
+	virtual ~scene() {
+		audio_mgr.release();
+	}
 
 	virtual void init() = 0;
 	virtual void awake() = 0;

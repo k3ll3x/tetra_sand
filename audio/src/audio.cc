@@ -9,11 +9,11 @@ audio::~audio(){
 }
 
 int /*audio::*/input(   void* outputBuffer,
-                    void* inputBuffer,
-                    unsigned int nBufferFrames,
-                    double streamTime,
-                    unsigned int status,
-                    void* data){
+                        void* inputBuffer,
+                        unsigned int nBufferFrames,
+                        double streamTime,
+                        unsigned int status,
+                        void* data){
 
     InputData* iData = (InputData*) data;
 
@@ -33,11 +33,11 @@ int /*audio::*/input(   void* outputBuffer,
 }
 
 int /*audio::*/output(  void* outputBuffer,
-                    void* inputBuffer,
-                    unsigned int nBufferFrames,
-                    double streamTime,
-                    RtAudioStreamStatus status,
-                    void* odata){
+                        void* inputBuffer,
+                        unsigned int nBufferFrames,
+                        double streamTime,
+                        RtAudioStreamStatus status,
+                        void* odata){
     OutputData *oData = (OutputData*) odata;
 
     // In general, it's not a good idea to do file input in the audio
@@ -141,7 +141,7 @@ void audio::play_hndl(  const char* filename,
                         unsigned int device,
                         unsigned int offset,
                         unsigned int bufferFrames){
-    std::cout << "need to debug this later\n";
+    std::cout << "need to debug this later " << dac.getDeviceCount() << '\n';
     if(dac.getDeviceCount() < 1){
         std::cout << "\nNo audio devices found!\n";
         audio::output_cleanup();
@@ -151,7 +151,6 @@ void audio::play_hndl(  const char* filename,
     std::lock_guard<std::mutex> odata_guard(audio::odata_mutex);
     std::string nfile(audio::save_path);
     nfile += filename;
-    return;
     odata.fd = fopen(nfile.c_str(), "rb");
     if(!odata.fd){
         std::cout << "Unable to find or open file!\n";
@@ -185,6 +184,9 @@ void audio::play_hndl(  const char* filename,
     while(dac.isStreamRunning()){
         SLEEP(100);
     }
+
+    std::cout << "Playback finished\n";
+    if ( dac.isStreamOpen() ) dac.closeStream();
 }
 
 void audio::play(   const char* filename,

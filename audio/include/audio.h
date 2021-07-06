@@ -38,6 +38,7 @@ class audio {
     OutputData odata;
     RtAudio adc = RtAudio(RtAudio::Api::LINUX_ALSA);
     RtAudio dac = RtAudio(RtAudio::Api::LINUX_ALSA);
+    // RtAudio dac = RtAudio();
     std::thread record_thread;
     std::thread play_thread;
     std::thread save_raw_data_thread;
@@ -89,7 +90,7 @@ public:
                 unsigned int channels = 1,
                 unsigned int fs = 44100,
                 double time = 2.0,
-                unsigned int device = 1,
+                unsigned int device = 6,
                 unsigned int offset = 0,
                 unsigned int bufferFrames = 512);
     
