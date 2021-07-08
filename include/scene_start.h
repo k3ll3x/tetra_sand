@@ -4,6 +4,9 @@
 #include "image_handler.h"
 
 class scene_start : public scene {
+	void audio_window();
+	std::string audio_status = "";
+	ImVec4 tcolor = ImVec4(1.0, 0.0, 0.0, 1.0);
 	int my_image_width = 0;
 	int my_image_height = 0;
 	GLuint my_image_texture = 0;

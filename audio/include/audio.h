@@ -96,6 +96,8 @@ public:
     
     void save_raw_data(const char* filename, unsigned int channels = 1);
 
+    bool is_stream_running();
+
     void input_cleanup();
     void output_cleanup();
 };

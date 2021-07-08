@@ -222,6 +222,10 @@ void audio::save_raw_data(const char* filename, unsigned int channels){
     save_raw_data_thread = std::thread(&audio::save_raw_data_hndl, this, filename, channels);
 }
 
+bool audio::is_stream_running(){
+    return ((dac.isStreamRunning()) | (adc.isStreamRunning()));
+}
+
 void audio::input_cleanup(){
     if ( adc.isStreamOpen() ) adc.closeStream();
     if ( idata.buffer ) free( idata.buffer );

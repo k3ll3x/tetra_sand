@@ -3,6 +3,8 @@
 #include "scene_start.h"
 #include "scene_vertex.h"
 
+#include <deque>
+
 std::vector<std::unique_ptr<scene>> scene_manager::sceneList;
 int scene_manager::currentScene = -1;
 GLFWwindow *scene_manager::window;
@@ -40,6 +42,17 @@ void scene_manager::key_callback(GLFWwindow *window, int key, int scancode, int 
 	}
 	if (currentScene >= 0)
 		sceneList.at(currentScene)->key_callback(window, key, scancode, action, mods);
+}
+
+void scene_manager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
+	//scene_manager::mxpos = xpos;
+	//scene_manager::mypos = ypos;
+	//std::cout << xpos << '\t' << ypos << '\n';
+}
+
+void scene_manager::mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+		std::cout << "right button clicked!\n";
 }
 
 void scene_manager::start(const char *name, int w, int h)
@@ -90,6 +103,8 @@ void scene_manager::start(const char *name, int w, int h)
 
 	glfwSetErrorCallback(error_callback);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetWindowSizeCallback(window, resize);
 
 	// glfwSetWindowCloseCallback(window, GL_FALSE);
@@ -176,7 +191,7 @@ void scene_manager::setupImgui(const char* glsl_version, GLFWwindow* window){
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	// ImGuiIO& io = ImGui::GetIO(); (void)io;
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -202,15 +217,29 @@ void doSomething(char buf[]){
 
 void scene_manager::imguiMain(ImVec4& clear_color){
 	static char buf[255];
+	static std::vector<std::string> entries;
 
-	ImGui::Begin("LAak");
-	ImGui::Text("%s", buf);
+	ImGui::Begin("LAak");//, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	ImGui::Button("entry Matrix/Vector");
+
 	// ImGui::SetKeyboardFocusHere(0);
+	// ImGui::InputTextMultiline("Matrix/Vector", buf, 255);
+	ImGui::BeginChild("Entries", {0, 80}, true, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoFocusOnAppearing);
+	for(int i = entries.size() - 1; i >= 0; --i){
+		ImGui::TextColored({ 1.0, 1.0, 0.0, 1.0 },"%i\t%s", i, entries[i].c_str());
+	}
+	ImGui::EndChild();
+
+	ImGui::TextColored({0.0,1.0,0.0,0.7}, "%s", buf);
 	ImGui::InputText("<<", buf, 255);
 
 	if (ImGui::Button(">>") || ImGui::IsKeyPressed(257)){
-		doSomething(buf);
-		buf[0] = '\0';
+		if(!std::string(buf).empty()){
+			doSomething(buf);
+			entries.push_back(buf);
+			buf[0] = '\0';
+		}
 		ImGui::SetKeyboardFocusHere(0);
 	}
 

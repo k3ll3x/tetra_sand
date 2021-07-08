@@ -9,18 +9,27 @@ void scene_start::init(){
 	IM_ASSERT(ret);
 }
 
-void audio_window(){
+void scene_start::audio_window(){
 	ImGui::Begin("Audio Window");
 	ImGui::Text("Record Audio with default device...");
+	ImGui::TextColored(scene_start::tcolor, scene_start::audio_status.c_str());
 	if(ImGui::Button("record")){
+		scene_start::audio_status = "Recording...";
+		scene_start::tcolor = ImVec4(1.0, 0.0, 0.0, 1.0);
 		scene::audio_mgr->record();
 	}
 	if(ImGui::Button("save recording to file")){
+		scene_start::audio_status = "Saving file...";
+		scene_start::tcolor = ImVec4(1.0, 0.5, 0.0, 1.0);
 		scene::audio_mgr->save_raw_data("record.raw");
 	}
 	if(ImGui::Button("play file")){
+		scene_start::audio_status = "Playing file...";
+		scene_start::tcolor = ImVec4(0.0, 1.0, 0.0, 1.0);
 		scene::audio_mgr->play("record.raw");
 	}
+	if(scene::audio_mgr->is_stream_running())
+		scene_start::audio_status = "";
 	ImGui::End();
 }
 
