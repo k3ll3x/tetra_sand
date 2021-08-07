@@ -1,31 +1,46 @@
 #pragma once
 
-// #include <GL/gl.h>
+#ifndef GRAPHICS
+#define GRAPHICS
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#endif
 
-// #include "../imgui/imgui.h"
-// #include "../imgui/backends/imgui_impl_glfw.h"
-// #include "../imgui/backends/imgui_impl_opengl3.h"
+#ifndef WINDOWMGR
+#define WINDOWMGR
+// #include <GL/gl.h>
+#include <GLFW/glfw3.h>
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#endif
 
+#ifndef STRING
+#define STRING
 #include <string>
+#endif
+
+#ifndef VECTOR
+#define VECTOR
 #include <vector>
+#endif
 
 #include "ifile.h"
 #include "ttime.h"
 
 #include "audio.h"
 
+#ifndef IOSTREAM
+#define IOSTREAM
 #include <iostream>
+#endif
+
 #include <memory>
 
 struct Shader {
 	std::string file;
 	int type;
+	char* name;
 };
 
 class scene {
@@ -75,13 +90,16 @@ public:
 					std::cout << log[j];
 				}
 			}
-			std::cout << "Shaders processed!\n";
+			std::cout << "Shader " << shaders[i].name << " processed!\n";
 		}
 
 		//manager
 		shader_program = glCreateProgram();
 		for(int i = 0; i < shaders.size(); i++){
 			glAttachShader(shader_program, shader[i]);
+		}
+		for(int i = 0; i < shaders.size(); i++){
+			glBindAttribLocation(shader_program, i, shaders[i].name);
 		}
 		glLinkProgram(shader_program);
 		for(int i = 0; i < shaders.size(); i++){

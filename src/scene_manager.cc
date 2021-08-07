@@ -3,8 +3,6 @@
 #include "scene_start.h"
 #include "scene_vertex.h"
 
-#include <deque>
-
 std::vector<std::unique_ptr<scene>> scene_manager::sceneList;
 int scene_manager::currentScene = -1;
 GLFWwindow *scene_manager::window;
@@ -197,7 +195,8 @@ void scene_manager::setupImgui(const char* glsl_version, GLFWwindow* window){
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
+	// ImGui::StyleColorsLight();
+	// ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -211,34 +210,84 @@ void scene_manager::startImguiFrame(){
 	ImGui::NewFrame();
 }
 
-void doSomething(char buf[]){
-	std::cout << "\t\tmsg:\t" << buf << std::endl;
+std::string scene_manager::pre_laak(char* input){
+	if(!lua_hndl.do_string(input))
+		return lua_hndl.errmsg;
+	if(lua_hndl.out.empty())
+		return input;
+	return lua_hndl.out;
+}
+
+void scene_manager::matrix_vector_win(bool& show, bool& input_mode){
+	static char mv_var[20];
+	static char mv_val[255];
+	ImGui::Begin("Matrix/Vector Creator", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::SetWindowFontScale(imgui_font_scale);
+	if(ImGui::Button("Clear")){
+		mv_var[0] = '\0';
+		mv_val[0] = '\0';
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Close"))
+		show = false;
+	ImGui::InputText("variable", mv_var, 20);
+	ImGui::InputTextMultiline("Matrix\nVector", mv_val, 255);
+	ImGui::Checkbox("input mode", &input_mode);
+	ImGui::SameLine();
+	if(ImGui::Button(">>")){
+		input_mode = true;
+		//eval expression := mv_var = mv_val
+		char nbuf[275] = "";
+		strcat(nbuf, mv_var);
+		strcat(nbuf, "=");
+		strcat(nbuf, mv_val);
+		entries.push_back(pre_laak(nbuf));
+		mv_var[0] = '\0';
+		mv_val[0] = '\0';
+	}
+	ImGui::End();
 }
 
 void scene_manager::imguiMain(ImVec4& clear_color){
-	static char buf[255];
-	static std::vector<std::string> entries;
+	static bool mv_win_show = false;
+	static bool mv_input_mode = true;
+	static bool new_entry = false;
 
 	ImGui::Begin("LAak");//, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::SetWindowFontScale(imgui_font_scale);
 
-	ImGui::Button("entry Matrix/Vector");
+	if(ImGui::Button("entry Matrix/Vector")){
+		mv_win_show = !mv_win_show;
+		mv_input_mode = !mv_input_mode;
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("clear entries"))
+		entries.clear();
 
-	// ImGui::SetKeyboardFocusHere(0);
-	// ImGui::InputTextMultiline("Matrix/Vector", buf, 255);
-	ImGui::BeginChild("Entries", {0, 80}, true, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoFocusOnAppearing);
-	for(int i = entries.size() - 1; i >= 0; --i){
-		ImGui::TextColored({ 1.0, 1.0, 0.0, 1.0 },"%i\t%s", i, entries[i].c_str());
+	if(mv_win_show)
+		matrix_vector_win(mv_win_show, mv_input_mode);
+
+	ImGui::BeginChild("Entries", {0, 100}, true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+	for(int i = 0; i < entries.size(); ++i){
+		ImGui::TextColored({ 0.0, 1.0, 0.3, 1.0 },">>\n");
+		ImGui::SameLine();
+		ImGui::TextColored({ 1.0, 1.0, 0.0, 1.0 },"%s", entries[i].c_str());
+	}
+	if(new_entry){
+		ImGui::SetScrollHereY();
+		new_entry = false;
 	}
 	ImGui::EndChild();
 
 	ImGui::TextColored({0.0,1.0,0.0,0.7}, "%s", buf);
-	ImGui::InputText("<<", buf, 255);
+	ImGui::InputText(">>", buf, 255);
 
-	if (ImGui::Button(">>") || ImGui::IsKeyPressed(257)){
+	ImGui::SameLine();
+	if ((ImGui::Button("eval") || ImGui::IsKeyPressed(257)) && mv_input_mode){
 		if(!std::string(buf).empty()){
-			doSomething(buf);
-			entries.push_back(buf);
+			entries.push_back(pre_laak(buf));
 			buf[0] = '\0';
+			new_entry = true;
 		}
 		ImGui::SetKeyboardFocusHere(0);
 	}

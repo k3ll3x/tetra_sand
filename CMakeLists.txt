@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-# cg_planet
-project(cg_planet VERSION 1.0)
+# Tetra Sand
+project(tetra_sand VERSION 1.0)
 
 # C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -30,20 +30,23 @@ set(IMGUI_SRC
 #Audio
 add_subdirectory(audio)
 
+#Laak Interpreter
+add_subdirectory(laak)
+
 # includes
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(cg_planet ${SOURCES} ${IMGUI_SRC})
+add_executable(${PROJECT_NAME} ${SOURCES} ${IMGUI_SRC})
 
 #libraries
 set (CMAKE_SHARED_LINKER_FLAGS "-DIMGUI_IMPL_OPENGL_LOADER_GLEW,`pkg-config --static --libs glfw3`,`pkg-config --cflags glfw3`")
-set(LIBS cgmath util GL glfw GLEW m audio)
+set(LIBS cgmath util GL glfw GLEW m audio laak)
 
 #threads
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-target_link_libraries(cg_planet ${LIBS} Threads::Threads)
+target_link_libraries(${PROJECT_NAME} ${LIBS} Threads::Threads)

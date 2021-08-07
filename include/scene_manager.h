@@ -1,10 +1,11 @@
 #pragma once
 
 #include <iostream>
-
 #include "scene.h"
-
 #include "xek.h"
+
+//laak interpreter
+#include "LuaHandler.h"
 
 class scene_manager {
 public:
@@ -23,7 +24,9 @@ private:
 	static void setupImgui(const char* glsl_version, GLFWwindow* window);
 	static void startImguiFrame();
 	static void imguiMain(ImVec4& clear_color);
+	static void matrix_vector_win(bool& show, bool& input_mode);
 	static void renderImgui(GLFWwindow* window, ImVec4& clear_color);
+	inline static float imgui_font_scale = 1.5;
 
 	static void error_callback(int error, const char* desc);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -35,4 +38,9 @@ private:
 
 	static GLFWwindow* window;
 	static int width, height;
+
+	inline static LuaHandler lua_hndl = LuaHandler();
+	static std::string pre_laak(char* input);
+	inline static char buf[255];
+	inline static std::vector<std::string> entries;
 };

@@ -8,8 +8,8 @@ scene_vertex::~scene_vertex()
 
 void scene_vertex::init(){
 	std::vector<Shader> shaders;
-	shaders.push_back({"./shaders/grid.vert", GL_VERTEX_SHADER});
-	shaders.push_back({"./shaders/solid_color.frag", GL_FRAGMENT_SHADER});
+	shaders.push_back({"./shaders/grid.vert", GL_VERTEX_SHADER, "positions"});
+	shaders.push_back({"./shaders/solid_color.frag", GL_FRAGMENT_SHADER, "colors"});
 	setupShaders(shaders);
 }
 
