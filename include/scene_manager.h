@@ -7,6 +7,10 @@
 //laak interpreter
 #include "LuaHandler.h"
 
+struct entry {
+	std::string input, output;
+};
+
 class scene_manager {
 public:
 	static void next();
@@ -41,6 +45,9 @@ private:
 
 	inline static LuaHandler lua_hndl = LuaHandler();
 	static std::string pre_laak(char* input);
-	inline static char buf[255];
-	inline static std::vector<std::string> entries;
+	inline static const unsigned int buf_s = 255;
+	inline static char buf[buf_s];
+	// inline static std::vector<std::string> entries;
+	inline static std::vector<entry> entries;
+	inline static int entry_idx = -1;
 };

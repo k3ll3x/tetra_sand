@@ -17,25 +17,20 @@ void scene_manager::error_callback(int error, const char *description)
 void scene_manager::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	// std::cout << "key:\t" << key << "\t" << (char)key << "\tscancode:\t" << scancode << "\taction:\t" << action << "\tmods:\t" << mods << '\n';
-	if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
-	{
+	if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS){
 		next();
 	}
-	if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
-	{
+	if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS){
 		prev();
 	}
-	if (key == GLFW_KEY_R && action == GLFW_PRESS)
-	{
+	if (key == GLFW_KEY_R && action == GLFW_PRESS){
 		if (currentScene >= 0)
 			sceneList.at(currentScene)->reset();
 	}
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
-	if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
-	{
+	if (key == GLFW_KEY_F11 && action == GLFW_PRESS){
 		glfwMaximizeWindow(window);
 	}
 	if (currentScene >= 0)
@@ -241,7 +236,7 @@ void scene_manager::matrix_vector_win(bool& show, bool& input_mode){
 		strcat(nbuf, mv_var);
 		strcat(nbuf, "=");
 		strcat(nbuf, mv_val);
-		entries.push_back(pre_laak(nbuf));
+		entries.push_back({nbuf, pre_laak(nbuf)});
 		mv_var[0] = '\0';
 		mv_val[0] = '\0';
 	}
@@ -255,6 +250,27 @@ void scene_manager::imguiMain(ImVec4& clear_color){
 
 	ImGui::Begin("LAak");//, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::SetWindowFontScale(imgui_font_scale);
+
+	if(ImGui::IsKeyPressed(GLFW_KEY_UP)){
+		if(!entries.empty()){
+			if(entry_idx == -1)
+				entry_idx = entries.size()-1;
+			strcpy(buf, entries[entry_idx].input.c_str());
+			entry_idx = entry_idx - 1;
+			// ImGui::End();
+			// return;
+		}
+	}
+	if(ImGui::IsKeyPressed(GLFW_KEY_DOWN)){
+		if(!entries.empty()){
+			if(entry_idx == -1)
+				entry_idx = 0;
+			strcpy(buf, entries[entry_idx].input.c_str());
+			entry_idx = (entry_idx + 1)%entries.size();
+			// ImGui::End();
+			// return;
+		}
+	}
 
 	if(ImGui::Button("entry Matrix/Vector")){
 		mv_win_show = !mv_win_show;
@@ -271,7 +287,7 @@ void scene_manager::imguiMain(ImVec4& clear_color){
 	for(int i = 0; i < entries.size(); ++i){
 		ImGui::TextColored({ 0.0, 1.0, 0.3, 1.0 },">>\n");
 		ImGui::SameLine();
-		ImGui::TextColored({ 1.0, 1.0, 0.0, 1.0 },"%s", entries[i].c_str());
+		ImGui::TextColored({ 1.0, 1.0, 0.0, 1.0 },"%s", entries[i].output.c_str());
 	}
 	if(new_entry){
 		ImGui::SetScrollHereY();
@@ -280,14 +296,15 @@ void scene_manager::imguiMain(ImVec4& clear_color){
 	ImGui::EndChild();
 
 	ImGui::TextColored({0.0,1.0,0.0,0.7}, "%s", buf);
-	ImGui::InputText(">>", buf, 255);
+	ImGui::InputText(">>", buf, buf_s);
 
 	ImGui::SameLine();
-	if ((ImGui::Button("eval") || ImGui::IsKeyPressed(257)) && mv_input_mode){
-		if(!std::string(buf).empty()){
-			entries.push_back(pre_laak(buf));
+	if ((ImGui::Button("eval") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) && mv_input_mode){
+		if(buf[0] != '\0'){
+			entries.push_back({buf, pre_laak(buf)});
 			buf[0] = '\0';
 			new_entry = true;
+			entry_idx = entries.size()-1;
 		}
 		ImGui::SetKeyboardFocusHere(0);
 	}

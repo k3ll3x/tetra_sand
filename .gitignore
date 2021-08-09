@@ -3,5 +3,6 @@
 **/build/
 **/CMakeFiles/
 **/rtaudio/
+**/laak/
 Makefile
 CMakeCache.txt
