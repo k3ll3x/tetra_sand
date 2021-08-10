@@ -7,6 +7,11 @@
 //laak interpreter
 #include "LuaHandler.h"
 
+#ifndef FSTREAM
+#define FSTREAM
+#include <fstream>
+#endif
+
 struct entry {
 	std::string input, output;
 };
@@ -28,7 +33,8 @@ private:
 	static void setupImgui(const char* glsl_version, GLFWwindow* window);
 	static void startImguiFrame();
 	static void imguiMain(ImVec4& clear_color);
-	static void matrix_vector_win(bool& show, bool& input_mode);
+	static void matrix_vector_win(bool& show, bool& new_entry);
+	static void script_win(bool& show, bool& new_entry);
 	static void renderImgui(GLFWwindow* window, ImVec4& clear_color);
 	inline static float imgui_font_scale = 1.5;
 
@@ -47,7 +53,6 @@ private:
 	static std::string pre_laak(char* input);
 	inline static const unsigned int buf_s = 255;
 	inline static char buf[buf_s];
-	// inline static std::vector<std::string> entries;
 	inline static std::vector<entry> entries;
 	inline static int entry_idx = -1;
 };

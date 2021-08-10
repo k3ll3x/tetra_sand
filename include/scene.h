@@ -40,7 +40,7 @@
 struct Shader {
 	std::string file;
 	int type;
-	char* name;
+	std::string name;
 };
 
 class scene {
@@ -99,7 +99,7 @@ public:
 			glAttachShader(shader_program, shader[i]);
 		}
 		for(int i = 0; i < shaders.size(); i++){
-			glBindAttribLocation(shader_program, i, shaders[i].name);
+			glBindAttribLocation(shader_program, i, shaders[i].name.c_str());
 		}
 		glLinkProgram(shader_program);
 		for(int i = 0; i < shaders.size(); i++){

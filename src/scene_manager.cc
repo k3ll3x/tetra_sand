@@ -213,7 +213,7 @@ std::string scene_manager::pre_laak(char* input){
 	return lua_hndl.out;
 }
 
-void scene_manager::matrix_vector_win(bool& show, bool& input_mode){
+void scene_manager::matrix_vector_win(bool& show, bool& new_entry){
 	static char mv_var[20];
 	static char mv_val[255];
 	ImGui::Begin("Matrix/Vector Creator", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
@@ -227,10 +227,7 @@ void scene_manager::matrix_vector_win(bool& show, bool& input_mode){
 		show = false;
 	ImGui::InputText("variable", mv_var, 20);
 	ImGui::InputTextMultiline("Matrix\nVector", mv_val, 255);
-	ImGui::Checkbox("input mode", &input_mode);
-	ImGui::SameLine();
-	if(ImGui::Button(">>")){
-		input_mode = true;
+	if(ImGui::Button("eval")){
 		//eval expression := mv_var = mv_val
 		char nbuf[275] = "";
 		strcat(nbuf, mv_var);
@@ -239,49 +236,61 @@ void scene_manager::matrix_vector_win(bool& show, bool& input_mode){
 		entries.push_back({nbuf, pre_laak(nbuf)});
 		mv_var[0] = '\0';
 		mv_val[0] = '\0';
+		new_entry = true;
+	}
+	ImGui::End();
+}
+
+void scene_manager::script_win(bool& show, bool& new_entry){
+	static char script_buffer[buf_s*buf_s];
+	ImGui::Begin("LAak script editor", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::SetWindowFontScale(imgui_font_scale);
+	if(ImGui::Button("Clear"))
+		script_buffer[0] = '\0';
+	ImGui::SameLine();
+	if(ImGui::Button("Close"))
+		show = false;
+	ImGui::InputTextMultiline("script", script_buffer, buf_s*buf_s, {0,0}, ImGuiInputTextFlags_AllowTabInput);
+	if(ImGui::Button("eval")){
+		//save temp script
+		std::ofstream tmp_script;
+		tmp_script.open("./scripts/tmp.lua");
+		if(tmp_script.is_open()){
+			tmp_script << script_buffer;
+			tmp_script.close();
+			char dofile[] = "dofile(\"./scripts/tmp.lua\")";
+			entries.push_back({"", pre_laak(dofile)});
+		}else{
+			entries.push_back({"", pre_laak(script_buffer)});
+		}
+		new_entry = true;
 	}
 	ImGui::End();
 }
 
 void scene_manager::imguiMain(ImVec4& clear_color){
 	static bool mv_win_show = false;
-	static bool mv_input_mode = true;
+	static bool script_win_show = false;
 	static bool new_entry = false;
 
 	ImGui::Begin("LAak");//, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::SetWindowFontScale(imgui_font_scale);
 
-	if(ImGui::IsKeyPressed(GLFW_KEY_UP)){
-		if(!entries.empty()){
-			if(entry_idx == -1)
-				entry_idx = entries.size()-1;
-			strcpy(buf, entries[entry_idx].input.c_str());
-			entry_idx = entry_idx - 1;
-			// ImGui::End();
-			// return;
-		}
-	}
-	if(ImGui::IsKeyPressed(GLFW_KEY_DOWN)){
-		if(!entries.empty()){
-			if(entry_idx == -1)
-				entry_idx = 0;
-			strcpy(buf, entries[entry_idx].input.c_str());
-			entry_idx = (entry_idx + 1)%entries.size();
-			// ImGui::End();
-			// return;
-		}
-	}
-
-	if(ImGui::Button("entry Matrix/Vector")){
+	if(ImGui::Button("entry Matrix/Vector"))
 		mv_win_show = !mv_win_show;
-		mv_input_mode = !mv_input_mode;
-	}
+
+	ImGui::SameLine();
+	if(ImGui::Button("entry script"))
+		script_win_show = !script_win_show;
+
 	ImGui::SameLine();
 	if(ImGui::Button("clear entries"))
 		entries.clear();
 
 	if(mv_win_show)
-		matrix_vector_win(mv_win_show, mv_input_mode);
+		matrix_vector_win(mv_win_show, new_entry);
+	if(script_win_show)
+		script_win(script_win_show, new_entry);
 
 	ImGui::BeginChild("Entries", {0, 100}, true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 	for(int i = 0; i < entries.size(); ++i){
@@ -298,15 +307,35 @@ void scene_manager::imguiMain(ImVec4& clear_color){
 	ImGui::TextColored({0.0,1.0,0.0,0.7}, "%s", buf);
 	ImGui::InputText(">>", buf, buf_s);
 
-	ImGui::SameLine();
-	if ((ImGui::Button("eval") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) && mv_input_mode){
-		if(buf[0] != '\0'){
-			entries.push_back({buf, pre_laak(buf)});
-			buf[0] = '\0';
-			new_entry = true;
-			entry_idx = entries.size()-1;
+	if(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)){
+		ImGui::SameLine();
+		if ((ImGui::Button("eval") || ImGui::IsKeyPressed(GLFW_KEY_ENTER))){
+			if(buf[0] != '\0'){
+				entries.push_back({buf, pre_laak(buf)});
+				buf[0] = '\0';
+				new_entry = true;
+				entry_idx = entries.size()-1;
+			}
+			ImGui::SetKeyboardFocusHere(0);
 		}
-		ImGui::SetKeyboardFocusHere(0);
+
+		if(ImGui::IsKeyPressed(GLFW_KEY_UP)){
+			if(!entries.empty()){// && ImGui::GetActiveID() == ImGui::GetID(">>")){
+				//ImGui::ClearActiveID();
+				if(entry_idx == -1)
+					entry_idx = entries.size()-1;
+				strcpy(buf, entries[entry_idx].input.c_str());
+				entry_idx = entry_idx - 1;
+			}
+		}
+		if(ImGui::IsKeyPressed(GLFW_KEY_DOWN)){
+			if(!entries.empty()){
+				if(entry_idx == -1)
+					entry_idx = 0;
+				strcpy(buf, entries[entry_idx].input.c_str());
+				entry_idx = (entry_idx + 1)%entries.size();
+			}
+		}
 	}
 
 	ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
