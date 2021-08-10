@@ -243,14 +243,14 @@ void scene_manager::matrix_vector_win(bool& show, bool& new_entry){
 
 void scene_manager::script_win(bool& show, bool& new_entry){
 	static char script_buffer[buf_s*buf_s];
-	ImGui::Begin("LAak script editor", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("LAak script editor");
 	ImGui::SetWindowFontScale(imgui_font_scale);
 	if(ImGui::Button("Clear"))
 		script_buffer[0] = '\0';
 	ImGui::SameLine();
 	if(ImGui::Button("Close"))
 		show = false;
-	ImGui::InputTextMultiline("script", script_buffer, buf_s*buf_s, {0,0}, ImGuiInputTextFlags_AllowTabInput);
+	ImGui::InputTextMultiline("script", script_buffer, buf_s*buf_s, {-FLT_MIN,-FLT_MIN - 32}, ImGuiInputTextFlags_AllowTabInput);
 	if(ImGui::Button("eval")){
 		//save temp script
 		std::ofstream tmp_script;
@@ -273,7 +273,7 @@ void scene_manager::imguiMain(ImVec4& clear_color){
 	static bool script_win_show = false;
 	static bool new_entry = false;
 
-	ImGui::Begin("LAak");//, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("LAak");
 	ImGui::SetWindowFontScale(imgui_font_scale);
 
 	if(ImGui::Button("entry Matrix/Vector"))
