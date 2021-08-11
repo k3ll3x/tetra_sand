@@ -1,8 +1,10 @@
 **/.vscode/
 **/imgui/
+**/ImGuiColorTextEdit/
 **/build/
 **/CMakeFiles/
 **/rtaudio/
 **/laak/
+misc/media/*
 Makefile
 CMakeCache.txt
