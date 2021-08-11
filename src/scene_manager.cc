@@ -124,6 +124,9 @@ void scene_manager::start(const char *name, int w, int h)
 	// GL version
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
+	//maximize window
+	glfwMaximizeWindow(window);
+
 	// Scene init
 	initialize();
 
@@ -300,11 +303,13 @@ void scene_manager::script_win(bool& show, bool& new_entry){
 			if (ImGui::MenuItem("Open")){
 				// open_file();
 				show_input = true;
+				ImGui::SetWindowFocus("Save/Open");
 				strcpy(save_or_open, "open");
 			}
 			if (ImGui::MenuItem("Save")){
 				// save_file();
 				show_input = true;
+				ImGui::SetWindowFocus("Save/Open");
 				strcpy(save_or_open, "save");
 			}
 			if(ImGui::MenuItem("Run")){
