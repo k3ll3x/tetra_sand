@@ -27,6 +27,12 @@ set(IMGUI_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.cpp
 )
 
+#imgui text editor
+set(TXTED
+    ${TXTED}
+    ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiColorTextEdit/TextEditor.cpp
+)
+
 #Audio
 add_subdirectory(audio)
 
@@ -36,10 +42,11 @@ add_subdirectory(laak)
 # includes
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiColorTextEdit/TextEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${IMGUI_SRC})
+add_executable(${PROJECT_NAME} ${SOURCES} ${IMGUI_SRC} ${TXTED})
 
 #libraries
 set (CMAKE_SHARED_LINKER_FLAGS "-DIMGUI_IMPL_OPENGL_LOADER_GLEW,`pkg-config --static --libs glfw3`,`pkg-config --cflags glfw3`")

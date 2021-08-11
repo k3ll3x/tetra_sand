@@ -196,6 +196,10 @@ void scene_manager::setupImgui(const char* glsl_version, GLFWwindow* window){
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
+
+	//text editor
+	auto lang = TextEditor::LanguageDefinition::Lua();
+	editor.SetLanguageDefinition(lang);
 }
 
 void scene_manager::startImguiFrame(){
@@ -242,29 +246,161 @@ void scene_manager::matrix_vector_win(bool& show, bool& new_entry){
 }
 
 void scene_manager::script_win(bool& show, bool& new_entry){
-	static char script_buffer[buf_s*buf_s];
-	ImGui::Begin("LAak script editor");
-	ImGui::SetWindowFontScale(imgui_font_scale);
-	if(ImGui::Button("Clear"))
-		script_buffer[0] = '\0';
-	ImGui::SameLine();
-	if(ImGui::Button("Close"))
-		show = false;
-	ImGui::InputTextMultiline("script", script_buffer, buf_s*buf_s, {-FLT_MIN,-FLT_MIN - 32}, ImGuiInputTextFlags_AllowTabInput);
-	if(ImGui::Button("eval")){
-		//save temp script
-		std::ofstream tmp_script;
-		tmp_script.open("./scripts/tmp.lua");
-		if(tmp_script.is_open()){
-			tmp_script << script_buffer;
-			tmp_script.close();
-			char dofile[] = "dofile(\"./scripts/tmp.lua\")";
-			entries.push_back({"", pre_laak(dofile)});
+	auto cpos = editor.GetCursorPosition();
+
+	static char status[20] = "";
+
+	//open tmp script
+	static auto open_file = [&](){
+		std::ifstream f(filename_path);
+		if(f.good()){
+			strcpy(status, "file opened");
+			std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+			editor.SetText(str);
+			return true;
 		}else{
-			entries.push_back({"", pre_laak(script_buffer)});
+			strcpy(status, "error opening file");
+			return false;
 		}
-		new_entry = true;
+	};
+
+	static bool once = true;
+	if(once){
+		open_file();
+		once = false;
 	}
+
+	static auto save_file = [&](){
+		auto text_content = editor.GetText();
+		std::ofstream tmp_script;
+		tmp_script.open(filename_path);
+		if(tmp_script.is_open()){
+			tmp_script << text_content;
+			tmp_script.close();
+			strcpy(status, "file saved");
+			return true;
+		}else{
+			strcpy(status, "error opening file");
+			return false;
+		}
+	};
+
+	static bool show_input = false;
+	static char save_or_open[5] = "";
+
+	ImGui::Begin("LAak Text Editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+	ImGui::SetWindowFontScale(imgui_font_scale);
+	ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+	if (ImGui::BeginMenuBar()){
+		if (ImGui::BeginMenu("File")){
+			if (ImGui::MenuItem("New")){
+				editor.SetText("-- new laak script...\n");
+				strcpy(filename_path, "./scripts/new.lua");
+			}
+			if (ImGui::MenuItem("Open")){
+				// open_file();
+				show_input = true;
+				strcpy(save_or_open, "open");
+			}
+			if (ImGui::MenuItem("Save")){
+				// save_file();
+				show_input = true;
+				strcpy(save_or_open, "save");
+			}
+			if(ImGui::MenuItem("Run")){
+				if(save_file()){
+					char dofile[] = "dofile(\"";
+					strcat(dofile, filename_path);
+					strcat(dofile, "\")");
+					entries.push_back({"", pre_laak(dofile)});
+					new_entry = true;
+					strcpy(status, "running...");
+				}else{
+					strcpy(status, "error running file");
+				}
+			}
+			if (ImGui::MenuItem("Quit"))
+				show = false;
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit")){
+			bool ro = editor.IsReadOnly();
+			if (ImGui::MenuItem("Read-only mode", nullptr, &ro))
+				editor.SetReadOnly(ro);
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr, !ro && editor.CanUndo()))
+				editor.Undo();
+			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && editor.CanRedo()))
+				editor.Redo();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, editor.HasSelection()))
+				editor.Copy();
+			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr, !ro && editor.HasSelection()))
+				editor.Cut();
+			if (ImGui::MenuItem("Delete", "Del", nullptr, !ro && editor.HasSelection()))
+				editor.Delete();
+			if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr, !ro && ImGui::GetClipboardText() != nullptr))
+				editor.Paste();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Select all", nullptr, nullptr))
+				editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(editor.GetTotalLines(), 0));
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View")){
+			if (ImGui::MenuItem("Dark palette"))
+				editor.SetPalette(TextEditor::GetDarkPalette());
+			if (ImGui::MenuItem("Light palette"))
+				editor.SetPalette(TextEditor::GetLightPalette());
+			if (ImGui::MenuItem("Retro blue palette"))
+				editor.SetPalette(TextEditor::GetRetroBluePalette());
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Highlight")){
+			if (ImGui::MenuItem("Lua"))
+				editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
+			if (ImGui::MenuItem("C++"))
+				editor.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
+			if (ImGui::MenuItem("GLSL"))
+				editor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
+		editor.IsOverwrite() ? "Ovr" : "Ins",
+		editor.CanUndo() ? "*" : " ",
+		editor.GetLanguageDefinition().mName.c_str(), status);
+
+	if(show_input){
+		ImGui::Begin("Save/Open", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::SetWindowFontScale(imgui_font_scale);
+		if(ImGui::Button("close")){
+			show_input = false;
+		}
+		ImGui::InputText("filename", filename_path, 100);
+		ImGui::SameLine();
+		if(ImGui::Button(save_or_open)){
+			if(strcmp(save_or_open, "open") == 0){
+				open_file();
+			}else{
+				save_file();
+			}
+			show_input = false;
+		}
+		ImGui::End();
+	}
+
+	editor.Render("TextEditor");
 	ImGui::End();
 }
 
@@ -280,7 +416,7 @@ void scene_manager::imguiMain(ImVec4& clear_color){
 		mv_win_show = !mv_win_show;
 
 	ImGui::SameLine();
-	if(ImGui::Button("entry script"))
+	if(ImGui::Button("text editor"))
 		script_win_show = !script_win_show;
 
 	ImGui::SameLine();

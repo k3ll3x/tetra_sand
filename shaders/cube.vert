@@ -20,3 +20,4 @@ void main(){
 	gl_Position = nmvp * vec4(VertexPosition, 1.0f);
 	color = VertexColor;
 }
+

@@ -1,6 +1,10 @@
 #pragma once
 
+#ifndef IOSTREAM
+#define IOSTREAM
 #include <iostream>
+#endif
+
 #include "scene.h"
 #include "xek.h"
 
@@ -11,6 +15,9 @@
 #define FSTREAM
 #include <fstream>
 #endif
+
+//tex editor
+#include "../ImGuiColorTextEdit/TextEditor.h"
 
 struct entry {
 	std::string input, output;
@@ -37,6 +44,10 @@ private:
 	static void script_win(bool& show, bool& new_entry);
 	static void renderImgui(GLFWwindow* window, ImVec4& clear_color);
 	inline static float imgui_font_scale = 1.5;
+
+	//text editor
+	inline static TextEditor editor;
+	inline static char filename_path[100] = "./scripts/tmp.lua";
 
 	static void error_callback(int error, const char* desc);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
