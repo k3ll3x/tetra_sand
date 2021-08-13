@@ -5,27 +5,11 @@
 #include <GL/glew.h>
 #endif
 
-#ifndef WINDOWMGR
-#define WINDOWMGR
-// #include <GL/gl.h>
-#include <GLFW/glfw3.h>
-
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#endif
-
-#ifndef STRING
-#define STRING
-#include <string>
-#endif
-
-#ifndef VECTOR
-#define VECTOR
-#include <vector>
-#endif
+#include "window_mgr.h"
 
 #include "ifile.h"
+#include "image_handler.h"
+
 #include "ttime.h"
 
 #include "audio.h"
