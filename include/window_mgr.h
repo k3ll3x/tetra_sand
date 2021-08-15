@@ -7,7 +7,7 @@
 #include "backends/imgui_impl_opengl3.h"
 
 //tex editor
-#include "../ImGuiColorTextEdit/TextEditor.h"
+#include "TextEditor.h"
 #endif
 
 #ifndef STRING

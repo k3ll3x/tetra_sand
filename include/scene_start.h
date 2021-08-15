@@ -2,6 +2,9 @@
 
 #include "scene.h"
 
+// #include "igl/readOBJ.h";
+// #include "igl/opengl/glfw/Viewer.h"
+
 class scene_start : public scene {
 	void audio_window();
 	std::string audio_status = "";
@@ -10,6 +13,8 @@ class scene_start : public scene {
 	int my_image_width = 0;
 	int my_image_height = 0;
 	GLuint my_image_texture = 0;
+
+	MatrixXd V, F;
 public:
 	//destructors
 	~scene_start(){}
