@@ -1,7 +1,14 @@
 #pragma once
 
+#ifndef STRING
+#define STRING
 #include <string>
+#endif
+
+#ifndef GRAPHICS
+#define GRAPHICS
 #include <GL/glew.h>
+#endif
 
 class image_handler
 {

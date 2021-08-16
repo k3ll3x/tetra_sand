@@ -1,3 +1,8 @@
+#ifndef LAAKHNDR
+#define LAAKHNDR
+#include "LAakHandler.h"
+#endif
+
 #ifndef WINDOWMGR
 #define WINDOWMGR
 #include <GLFW/glfw3.h>
@@ -5,10 +10,10 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#endif
 
 //tex editor
 #include "TextEditor.h"
-#endif
 
 #ifndef STRING
 #define STRING
@@ -25,17 +30,13 @@
 #include <fstream>
 #endif
 
-#ifndef LAAKHNDR
-#define LAAKHNDR
-#include "LAakHandler.h"
-#endif
-
 struct entry {
 	std::string input, output;
 };
 
 class window_mgr {
 public:
+    // window_mgr(Environment env);
     window_mgr(LAakHandler* laak_hndl);
     // ~window_mgr() = delete;
     void setup(const char* glsl_version, GLFWwindow* window);
@@ -47,6 +48,7 @@ public:
     void clean();
 private:
     LAakHandler* laak_hndl;
+    // GLFWwindow* window;
 
     float imgui_font_scale = 1.5;
 

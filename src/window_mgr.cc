@@ -4,6 +4,11 @@ window_mgr::window_mgr(LAakHandler* laak_hndl){
 	this->laak_hndl = laak_hndl;
 }
 
+// window_mgr::window_mgr(Environment env){
+// 	this->laak_hndl = env.laak_hndl;
+// 	this->window = env.window;
+// }
+
 // window_mgr::~window_mgr(){
 // 	clean();
 // }
@@ -34,6 +39,8 @@ void window_mgr::setup(const char* glsl_version, GLFWwindow* window){
 	//text editor
 	auto lang = TextEditor::LanguageDefinition::Lua();
 	editor.SetLanguageDefinition(lang);
+
+	WindowMgr::window = window;
 }
 
 void window_mgr::start_frame(){
@@ -78,6 +85,10 @@ void window_mgr::main(ImVec4& clear_color){
 		if (ImGui::BeginMenu("entries")){
 			if(ImGui::MenuItem("clear"))
 				entries.clear();
+			if(ImGui::MenuItem("collect garbage")){
+				char gc[] = "collectgarbage()";
+				pre_laak(gc);
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
@@ -180,7 +191,7 @@ void window_mgr::matrix_vector_win(bool& show, bool& new_entry){
 void window_mgr::script_win(bool& show, bool& new_entry){
     auto cpos = editor.GetCursorPosition();
 
-	static char status[20] = "";
+	static char status[30] = "";
 
 	static float font_size = imgui_font_scale;
 
@@ -229,7 +240,8 @@ void window_mgr::script_win(bool& show, bool& new_entry){
 		if (ImGui::BeginMenu("File")){
 			if (ImGui::MenuItem("New")){
 				editor.SetText("-- new laak script...\n");
-				strcpy(filename_path, "./scripts/new.lua");
+				// strcpy(filename_path, "./scripts/new.lua");
+				strcpy(filename_path, "./scripts/new.");
 			}
 			if (ImGui::MenuItem("Open")){
 				// open_file();
@@ -242,18 +254,6 @@ void window_mgr::script_win(bool& show, bool& new_entry){
 				show_input = true;
 				ImGui::SetWindowFocus("Save/Open");
 				strcpy(save_or_open, "save");
-			}
-			if(ImGui::MenuItem("Run")){
-				if(save_file()){
-					char dofile[] = "dofile(\"";
-					strcat(dofile, filename_path);
-					strcat(dofile, "\")");
-					entries.push_back({"", pre_laak(dofile)});
-					new_entry = true;
-					strcpy(status, "running...");
-				}else{
-					strcpy(status, "error running file");
-				}
 			}
 			if (ImGui::MenuItem("Quit"))
 				show = false;
@@ -288,7 +288,30 @@ void window_mgr::script_win(bool& show, bool& new_entry){
 
 			ImGui::EndMenu();
 		}
-
+		if (ImGui::BeginMenu("Run")){
+			if(ImGui::MenuItem("LAak script")){
+				if(save_file()){
+					char dofile[] = "dofile(\"";
+					strcat(dofile, filename_path);
+					strcat(dofile, "\")");
+					entries.push_back({"", pre_laak(dofile)});
+					new_entry = true;
+					strcpy(status, "running...");
+				}else{
+					strcpy(status, "error running file");
+				}
+			}
+			if(ImGui::MenuItem("shader")){
+				if(save_file()){
+					//setup shaders
+					
+					strcpy(status, "shaders loaded");
+				}else{
+					strcpy(status, "error loading shaders");
+				}
+			}
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("View")){
 			if (ImGui::MenuItem("Dark palette"))
 				editor.SetPalette(TextEditor::GetDarkPalette());

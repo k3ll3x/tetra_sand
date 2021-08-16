@@ -78,8 +78,8 @@ void scene_manager::start(const char *name, int w, int h)
 	height = h;
 
 	window = glfwCreateWindow(width, height, name, nullptr, nullptr);
-	if (!window)
-	{
+
+	if (!window){
 		std::cout << "Could not create window!\n";
 		cleanup();
 		exit(EXIT_FAILURE);

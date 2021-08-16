@@ -37,12 +37,12 @@ void scene_start::sceneWindowHandler(){
 	ImGui::Begin("Start Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("Hello");
 	ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-	if(ImGui::Button("bunny")){
-		// igl::readOBJ("misc/bunny.obj", V, F);
-		// igl::opengl::glfw::Viewer viewer;
-		// viewer.data().set_mesh(V, F);
-		// viewer.launch();
-	}
+	// if(ImGui::Button("bunny")){
+	// 	igl::readOBJ("misc/bunny.obj", V, F);
+	// 	igl::opengl::glfw::Viewer viewer;
+	// 	viewer.data().set_mesh(V, F);
+	// 	viewer.launch();
+	// }
 	ImGui::End();
 
 	ImGui::Begin("background color", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
