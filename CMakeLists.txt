@@ -12,6 +12,23 @@ add_subdirectory(cgmath)
 #util library
 add_subdirectory(util)
 
+#Audio
+# add_subdirectory(audio)
+
+#Laak Interpreter
+add_subdirectory(laak)
+
+# includes
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiColorTextEdit
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+# python
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+
 #wildcard additions sources
 file(GLOB SOURCES "src/*.cc")
 
@@ -33,28 +50,14 @@ set(TXTED
     ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiColorTextEdit/TextEditor.cpp
 )
 
-#Audio
-add_subdirectory(audio)
-
-#Laak Interpreter
-add_subdirectory(laak)
-
-# includes
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiColorTextEdit
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/libigl/include
-)
-
 add_executable(${PROJECT_NAME} ${SOURCES} ${IMGUI_SRC} ${TXTED})
 
 #libraries
 set (CMAKE_SHARED_LINKER_FLAGS "-DIMGUI_IMPL_OPENGL_LOADER_GLEW,`pkg-config --static --libs glfw3`,`pkg-config --cflags glfw3`")
-set(LIBS cgmath util GL glfw GLEW m audio laak)
+set(LIBS cgmath util GL glfw GLEW m laak)
 
 #threads
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} Threads::Threads)
+target_link_libraries(${PROJECT_NAME} ${LIBS} Threads::Threads ${PYTHON_LIBRARIES})

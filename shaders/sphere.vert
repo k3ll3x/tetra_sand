@@ -33,3 +33,4 @@ void main(){
 	InterpolatedColor = vec4(sin(gl_VertexID),cos(gl_VertexID),cos(gl_VertexID),1.0);
 	gl_PointSize = 10.0;
 }
+

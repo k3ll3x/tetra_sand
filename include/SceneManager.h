@@ -1,9 +1,9 @@
 #pragma once
 
-#include "scene.h"
+#include "Scene.h"
 #include "xek.h"
 
-class scene_manager {
+class SceneManager {
 public:
 	static void next();
 	static void prev();
@@ -22,12 +22,12 @@ private:
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
-	static std::vector<std::unique_ptr<scene>> sceneList;
+	static std::vector<std::unique_ptr<Scene>> sceneList;
 	static int currentScene;
 
 	static GLFWwindow* window;
 	static int width, height;
 
 	inline static LAakHandler laak_hndl = LAakHandler();
-	inline static window_mgr win_mgr = window_mgr(&laak_hndl);
+	inline static WindowManager win_mgr = WindowManager(&laak_hndl);
 };

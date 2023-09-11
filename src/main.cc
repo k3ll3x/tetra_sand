@@ -1,4 +1,4 @@
-#include "scene_manager.h"
+#include "SceneManager.h"
 
 int main(int argc, char ** argv){
 	const char * title = "Die Lawaaierige Planeet";
@@ -14,6 +14,6 @@ int main(int argc, char ** argv){
 		h = 800;
 	}
 
-	scene_manager::start(title, w, h);
+	SceneManager::start(title, w, h);
 	return 0;
 }

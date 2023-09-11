@@ -1,20 +1,19 @@
-#include "scene_manager.h"
+#include "SceneManager.h"
 
-#include "scene_start.h"
-#include "scene_vertex.h"
+#include "SceneStart.h"
 
-std::vector<std::unique_ptr<scene>> scene_manager::sceneList;
-int scene_manager::currentScene = -1;
-GLFWwindow *scene_manager::window;
-int scene_manager::width;
-int scene_manager::height;
+std::vector<std::unique_ptr<Scene>> SceneManager::sceneList;
+int SceneManager::currentScene = -1;
+GLFWwindow *SceneManager::window;
+int SceneManager::width;
+int SceneManager::height;
 
-void scene_manager::error_callback(int error, const char *description)
+void SceneManager::error_callback(int error, const char *description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-void scene_manager::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+void SceneManager::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	// std::cout << "key:\t" << key << "\t" << (char)key << "\tscancode:\t" << scancode << "\taction:\t" << action << "\tmods:\t" << mods << '\n';
 	if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS){
@@ -34,21 +33,23 @@ void scene_manager::key_callback(GLFWwindow *window, int key, int scancode, int 
 		glfwMaximizeWindow(window);
 	}
 	if (currentScene >= 0)
-		sceneList.at(currentScene)->key_callback(window, key, scancode, action, mods);
+		sceneList.at(currentScene)->key_callback(key, scancode, action, mods);
 }
 
-void scene_manager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
-	//scene_manager::mxpos = xpos;
-	//scene_manager::mypos = ypos;
+void SceneManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
+	//SceneManager::mxpos = xpos;
+	//SceneManager::mypos = ypos;
 	//std::cout << xpos << '\t' << ypos << '\n';
 }
 
-void scene_manager::mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
+void SceneManager::mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
 		std::cout << "right button clicked!\n";
+	if (currentScene >= 0)
+		sceneList.at(currentScene)->mouse_button_callback(button, action, mods);
 }
 
-void scene_manager::start(const char *name, int w, int h)
+void SceneManager::start(const char *name, int w, int h)
 {
 	// Time init
 	time::init();
@@ -134,7 +135,7 @@ void scene_manager::start(const char *name, int w, int h)
 	mainLoop();
 }
 
-void scene_manager::next()
+void SceneManager::next()
 {
 	int nScenes = (int)sceneList.size();
 	if (nScenes > 0){
@@ -144,7 +145,7 @@ void scene_manager::next()
 	}
 }
 
-void scene_manager::prev()
+void SceneManager::prev()
 {
 	int nScenes = (int)sceneList.size();
 	if (nScenes > 0){
@@ -156,23 +157,17 @@ void scene_manager::prev()
 	}
 }
 
-void scene_manager::initialize()
+void SceneManager::initialize()
 {
 	// Ejemplo de como agregar escenas al proyecto
-	//std::unique_ptr<scene> somescene(new scene_project);
+	//std::unique_ptr<Scene> somescene(new scene_project);
 	//sceneList.push_back(std::move(somescene));
 
-	std::unique_ptr<scene> scene0(new scene_start);
+	std::unique_ptr<Scene> scene0(new SceneStart);
 	sceneList.push_back(std::move(scene0));
 
-	std::unique_ptr<scene> scene1(new scene_vertex);
-	sceneList.push_back(std::move(scene1));
-
-	//vao
-	GLuint vao;
-	GLuint positionsVBO;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	// std::unique_ptr<Scene> scene1(new scene_vertex);
+	// sceneList.push_back(std::move(scene1));
 
 	for (auto& s : sceneList)
 		s->init();
@@ -183,7 +178,7 @@ void scene_manager::initialize()
 	}
 }
 
-void scene_manager::mainLoop(){
+void SceneManager::mainLoop(){
 	time::tick();
 	auto cls_clr = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	while (!glfwWindowShouldClose(window)){
@@ -196,7 +191,7 @@ void scene_manager::mainLoop(){
 		win_mgr.main(cls_clr);
 
 		if (currentScene >= 0)
-			sceneList.at(currentScene)->sceneWindowHandler();
+			sceneList.at(currentScene)->window_handler();
 		win_mgr.render(window, cls_clr);
 
 		glfwSwapBuffers(window);
@@ -205,11 +200,11 @@ void scene_manager::mainLoop(){
 	cleanup();
 }
 
-void scene_manager::idle(){
+void SceneManager::idle(){
 	//glutPostRedisplay();
 }
 
-void scene_manager::cleanup(){
+void SceneManager::cleanup(){
 	win_mgr.clean();
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -217,8 +212,8 @@ void scene_manager::cleanup(){
 	currentScene = -1;
 }
 
-void scene_manager::resize(GLFWwindow *window, int width, int height){
+void SceneManager::resize(GLFWwindow *window, int width, int height){
 	glViewport(0, 0, width, height);
-	//if (currentScene >= 0)
-	//sceneList.at(currentScene)->resize(window, width, height);
+	if (currentScene >= 0)
+		sceneList.at(currentScene)->resize(width, height);
 }

@@ -1,44 +1,29 @@
-#ifndef LAAKHNDR
-#define LAAKHNDR
+#pragma once
 #include "LAakHandler.h"
-#endif
 
-#ifndef WINDOWMGR
-#define WINDOWMGR
 #include <GLFW/glfw3.h>
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#endif
 
 //tex editor
 #include "TextEditor.h"
 
-#ifndef STRING
-#define STRING
 #include <string>
-#endif
-
-#ifndef VECTOR
-#define VECTOR
 #include <vector>
-#endif
-
-#ifndef FSTREAM
-#define FSTREAM
 #include <fstream>
-#endif
 
 struct entry {
 	std::string input, output;
 };
 
-class window_mgr {
+class WindowManager {
 public:
-    // window_mgr(Environment env);
-    window_mgr(LAakHandler* laak_hndl);
-    // ~window_mgr() = delete;
+    // WindowManager(Environment env);
+    WindowManager(LAakHandler* laak_hndl);
+    // ~WindowManager();
+    // ~WindowManager() = delete;
     void setup(const char* glsl_version, GLFWwindow* window);
     void start_frame();
     void main(ImVec4& clear_color);

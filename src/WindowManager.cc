@@ -1,25 +1,25 @@
-#include "window_mgr.h"
+#include "WindowManager.h"
 
-window_mgr::window_mgr(LAakHandler* laak_hndl){
+WindowManager::WindowManager(LAakHandler* laak_hndl){
 	this->laak_hndl = laak_hndl;
 }
 
-// window_mgr::window_mgr(Environment env){
+// WindowManager::WindowManager(Environment env){
 // 	this->laak_hndl = env.laak_hndl;
 // 	this->window = env.window;
 // }
 
-// window_mgr::~window_mgr(){
+// WindowManager::~WindowManager(){
 // 	clean();
 // }
 
-void window_mgr::clean(){
+void WindowManager::clean(){
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void window_mgr::setup(const char* glsl_version, GLFWwindow* window){
+void WindowManager::setup(const char* glsl_version, GLFWwindow* window){
     // Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -39,17 +39,15 @@ void window_mgr::setup(const char* glsl_version, GLFWwindow* window){
 	//text editor
 	auto lang = TextEditor::LanguageDefinition::Lua();
 	editor.SetLanguageDefinition(lang);
-
-	WindowMgr::window = window;
 }
 
-void window_mgr::start_frame(){
+void WindowManager::start_frame(){
     ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
-std::string window_mgr::pre_laak(char* input){
+std::string WindowManager::pre_laak(char* input){
 	if(!laak_hndl->do_string(input))
 		return laak_hndl->errmsg;
 	if(laak_hndl->out.empty())
@@ -57,7 +55,7 @@ std::string window_mgr::pre_laak(char* input){
 	return laak_hndl->out;
 }
 
-void window_mgr::main(ImVec4& clear_color){
+void WindowManager::main(ImVec4& clear_color){
     static bool mv_win_show = false;
 	static bool script_win_show = false;
 	static bool new_entry = false;
@@ -160,7 +158,7 @@ void window_mgr::main(ImVec4& clear_color){
 	ImGui::End();
 }
 
-void window_mgr::matrix_vector_win(bool& show, bool& new_entry){
+void WindowManager::matrix_vector_win(bool& show, bool& new_entry){
     static char mv_var[20];
 	static char mv_val[255];
 	ImGui::Begin("Matrix/Vector Creator", &show, ImGuiWindowFlags_AlwaysAutoResize);
@@ -188,7 +186,7 @@ void window_mgr::matrix_vector_win(bool& show, bool& new_entry){
 	ImGui::End();
 }
 
-void window_mgr::script_win(bool& show, bool& new_entry){
+void WindowManager::script_win(bool& show, bool& new_entry){
     auto cpos = editor.GetCursorPosition();
 
 	static char status[30] = "";
@@ -369,7 +367,7 @@ void window_mgr::script_win(bool& show, bool& new_entry){
 	ImGui::End();
 }
 
-void window_mgr::render(GLFWwindow* window, ImVec4& clear_color){
+void WindowManager::render(GLFWwindow* window, ImVec4& clear_color){
     // Rendering
 	ImGui::Render();
 	// int display_w, display_h;
